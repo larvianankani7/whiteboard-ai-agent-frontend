@@ -24,17 +24,17 @@ function App() {
     console.log("Generating:", prompt);
 
     const response = await fetch(
-      "http://localhost:5000/api/generate",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          prompt,
-        }),
-      }
-    );
+  `${import.meta.env.VITE_API_URL}/api/generate`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt,
+    }),
+  }
+);
 
     const result = await response.json();
 
