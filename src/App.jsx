@@ -17,7 +17,7 @@ function App() {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
   const [activeTool, setActiveTool] = useState("selection");
   const [selectedElement, setSelectedElement] = useState(null);
-  const [canvasTheme, setCanvasTheme] = useState("light");
+  const [canvasTheme, setCanvasTheme] = useState("dark");
   const [shareMessage, setShareMessage] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [saveStatus, setSaveStatus] = useState("Loading board...");
@@ -44,7 +44,7 @@ function App() {
           ? {
               elements: saved.elements || [],
               appState: saved.appState || {
-                viewBackgroundColor: "#ffffff",
+                viewBackgroundColor: "#000000",
               },
               files: saved.files || {},
             }
@@ -71,7 +71,7 @@ function App() {
         if (!cancelled) {
           setInitialData({
             elements: [],
-            appState: { viewBackgroundColor: "#ffffff" },
+            appState: { viewBackgroundColor: "#000000" },
             files: {},
           });
           setSaveStatus("Local restore failed");
