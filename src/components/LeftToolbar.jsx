@@ -1,3 +1,5 @@
+
+import { useState } from "react";
 import {
   MousePointer2,
   Square,
@@ -6,6 +8,9 @@ import {
   Type,
   Pencil,
   Minus,
+  Eraser,
+  Lock,
+  Unlock,
   Trash2,
 } from "lucide-react";
 
@@ -17,6 +22,7 @@ const tools = [
   { type: "text", icon: Type, label: "Text" },
   { type: "freedraw", icon: Pencil, label: "Draw" },
   { type: "line", icon: Minus, label: "Line" },
+  { type: "eraser", icon: Eraser, label: "Eraser" },
 ];
 
 function LeftToolbar({
@@ -25,15 +31,29 @@ function LeftToolbar({
   setActiveTool,
   onClearAll,
 }) {
+  const [toolLocked, setToolLocked] = useState(true);
+
   const handleToolClick = (toolType) => {
     if (!excalidrawAPI) return;
 
     excalidrawAPI.setActiveTool({
       type: toolType,
-      locked: true,
+      locked: toolLocked,
     });
 
     setActiveTool(toolType);
+  };
+
+  const handleToggleLock = () => {
+    if (!excalidrawAPI) return;
+
+    const nextLocked = !toolLocked;
+    setToolLocked(nextLocked);
+
+    excalidrawAPI.setActiveTool({
+      type: activeTool,
+      locked: nextLocked,
+    });
   };
 
   return (
@@ -62,6 +82,21 @@ function LeftToolbar({
       })}
 
       <div className="toolbar-separator" />
+
+      <button
+        type="button"
+        title={toolLocked ? "Unlock active tool" : "Lock active tool"}
+        aria-label={toolLocked ? "Unlock active tool" : "Lock active tool"}
+        aria-pressed={toolLocked}
+        onClick={handleToggleLock}
+        className={`tool-button ${
+          toolLocked
+            ? "bg-[#27272a] text-white"
+            : "text-gray-400 hover:text-white hover:bg-[#7F1D2D]"
+        }`}
+      >
+        {toolLocked ? <Lock size={18} /> : <Unlock size={18} />}
+      </button>
 
       <button
         type="button"

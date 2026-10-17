@@ -1,12 +1,11 @@
+
 import { Sparkles, FileText, Moon, Sun } from "lucide-react";
 
-function Header({
-  onSave,
-  onToggleTheme,
-  canvasTheme,
-}) {
+function Header({ onSave, onToggleTheme, canvasTheme }) {
+  const isLight = canvasTheme === "light";
+
   return (
-    <header className="app-header h-16 shrink-0 border-b border-[#2a2a2f] bg-[#111113] flex items-center justify-between px-5">
+    <header className="app-header shrink-0 border-b border-[#2a2a2f] bg-[#111113] flex items-center justify-between px-5">
       <div className="flex items-center gap-3 min-w-0">
         <div className="app-logo w-12 h-12 rounded-xl bg-linear-to-br from-[#A52A3A] via-[#7F1D2D] to-[#3D0A12] flex items-center justify-center border border-[#A52A3A]/30 shrink-0">
           <Sparkles size={23} className="text-white" />
@@ -24,6 +23,7 @@ function Header({
 
       <div className="header-actions flex items-center gap-2 shrink-0">
         <button
+          type="button"
           onClick={onSave}
           title="Save to PDF"
           aria-label="Save to PDF"
@@ -34,18 +34,15 @@ function Header({
         </button>
 
         <button
+          type="button"
           onClick={onToggleTheme}
-          title={canvasTheme === "light" ? "Dark mode" : "Light mode"}
+          title={isLight ? "Switch to dark mode" : "Switch to light mode"}
           aria-label="Change canvas mode"
           className="header-action toolbar-button"
         >
-          {canvasTheme === "light" ? (
-            <Moon size={19} />
-          ) : (
-            <Sun size={19} />
-          )}
+          {isLight ? <Moon size={19} /> : <Sun size={19} />}
           <span className="mobile-mode-label">
-            {canvasTheme === "light" ? "Dark" : "Light"}
+            {isLight ? "Dark" : "Light"}
           </span>
         </button>
       </div>
