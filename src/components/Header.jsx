@@ -1,4 +1,3 @@
-
 import {
   Sparkles,
   Undo2,
@@ -22,28 +21,37 @@ function Header({
   saveStatus,
 }) {
   return (
-    <header className="h-16 border-b border-[#2a2a2f] bg-[#111113] flex items-center justify-between px-5">
-      <div className="flex items-center gap-3">
-        <div className="w-15 h-15 rounded-xl bg-linear-to-br from-[#A52A3A] via-[#7F1D2D] to-[#3D0A12] flex items-center justify-center shadow-lg shadow-[#7F1D2D]/30 border border-[#A52A3A]/30">
+    <header className="h-16 min-h-16 border-b border-[#2a2a2f] bg-[#111113] flex items-center justify-between px-5">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-15 h-15 rounded-xl bg-linear-to-br from-[#A52A3A] via-[#7F1D2D] to-[#3D0A12] flex items-center justify-center shadow-lg shadow-[#7F1D2D]/30 border border-[#A52A3A]/30 shrink-0">
           <Sparkles size={25} className="text-white" />
         </div>
 
-        <div>
-          <h1 className="text-base font-bold tracking-tight bg-linear-to-r from-white via-[#f0b7bd] to-[#A52A3A] bg-clip-text text-transparent">
+        <div className="min-w-0">
+          <h1 className="text-base font-bold tracking-tight bg-linear-to-r from-white via-[#f0b7bd] to-[#A52A3A] bg-clip-text text-transparent whitespace-nowrap">
             Whiteboard AI
           </h1>
-          <p className="text-[11px] tracking-wide text-gray-500">
+
+          <p className="text-[11px] tracking-wide text-gray-500 whitespace-nowrap">
             INTELLIGENT VISUAL AGENT
           </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <button onClick={onUndo} title="Undo" className="toolbar-button">
+      <div className="flex items-center gap-2 shrink-0">
+        <button
+          onClick={onUndo}
+          title="Undo"
+          className="toolbar-button"
+        >
           <Undo2 size={17} />
         </button>
 
-        <button onClick={onRedo} title="Redo" className="toolbar-button">
+        <button
+          onClick={onRedo}
+          title="Redo"
+          className="toolbar-button"
+        >
           <Redo2 size={17} />
         </button>
 
@@ -84,7 +92,7 @@ function Header({
           </button>
 
           {shareMessage && (
-            <span className="absolute top-11 right-0 whitespace-nowrap bg-[#7F1D2D] text-white text-xs px-3 py-1.5 rounded-md">
+            <span className="absolute top-11 right-0 whitespace-nowrap bg-[#7F1D2D] text-white text-xs px-3 py-1.5 rounded-md z-50">
               {shareMessage}
             </span>
           )}
@@ -92,7 +100,11 @@ function Header({
 
         <button
           onClick={onToggleTheme}
-          title={canvasTheme === "light" ? "Dark Canvas" : "Light Canvas"}
+          title={
+            canvasTheme === "light"
+              ? "Dark Canvas"
+              : "Light Canvas"
+          }
           className="toolbar-button"
         >
           {canvasTheme === "light" ? (

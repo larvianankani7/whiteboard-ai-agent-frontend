@@ -23,6 +23,8 @@ function App() {
   const [saveStatus, setSaveStatus] = useState("Loading board...");
   const [initialData, setInitialData] = useState(null);
   const [boardReady, setBoardReady] = useState(false);
+  const [showMobileProperties, setShowMobileProperties] = useState(false);
+
   const historyRef = useRef([[]]);
   const historyIndexRef = useRef(0);
   const isHistoryActionRef = useRef(false);
@@ -30,7 +32,6 @@ function App() {
   const currentSceneRef = useRef(null);
   const saveQueueRef = useRef(Promise.resolve());
 
-  // Restore the saved board before mounting Excalidraw.
   useEffect(() => {
     let cancelled = false;
 
@@ -91,7 +92,6 @@ function App() {
   const persistScene = useCallback((scene) => {
     if (!scene) return Promise.resolve();
 
-    // Keep saves ordered so an older snapshot cannot overwrite a newer one.
     saveQueueRef.current = saveQueueRef.current
       .catch(() => {})
       .then(() =>
@@ -125,13 +125,13 @@ function App() {
     [persistScene]
   );
 
-  // Flush the latest scene when the user leaves the tab.
   useEffect(() => {
     const flushSave = () => {
       if (document.visibilityState === "hidden") {
         clearTimeout(saveTimerRef.current);
 
         const scene = currentSceneRef.current;
+
         if (scene) {
           persistScene(scene).catch((error) => {
             console.error("Final autosave failed:", error);
@@ -236,10 +236,11 @@ function App() {
   };
 
   const toggleCanvasTheme = () => {
-    setCanvasTheme((prev) => (prev === "light" ? "dark" : "light"));
+    setCanvasTheme((prev) =>
+      prev === "light" ? "dark" : "light"
+    );
   };
 
-  
   const updateSelectedElement = (updates) => {
     if (!excalidrawAPI || !selectedElement) return;
 
@@ -269,7 +270,10 @@ function App() {
       historyRef.current[historyIndexRef.current];
 
     isHistoryActionRef.current = true;
-    excalidrawAPI.updateScene({ elements: previousElements });
+
+    excalidrawAPI.updateScene({
+      elements: previousElements,
+    });
 
     setTimeout(() => {
       isHistoryActionRef.current = false;
@@ -286,10 +290,14 @@ function App() {
 
     historyIndexRef.current += 1;
 
-    const nextElements = historyRef.current[historyIndexRef.current];
+    const nextElements =
+      historyRef.current[historyIndexRef.current];
 
     isHistoryActionRef.current = true;
-    excalidrawAPI.updateScene({ elements: nextElements });
+
+    excalidrawAPI.updateScene({
+      elements: nextElements,
+    });
 
     setTimeout(() => {
       isHistoryActionRef.current = false;
@@ -306,7 +314,9 @@ function App() {
       .filter((element) => !element.isDeleted);
 
     if (elements.length === 0) {
-      window.alert("Your whiteboard is empty. Draw something first.");
+      window.alert(
+        "Your whiteboard is empty. Draw something first."
+      );
       return null;
     }
 
@@ -362,7 +372,10 @@ function App() {
       const image = canvas.toDataURL("image/png");
 
       const pdf = new jsPDF({
-        orientation: canvas.width >= canvas.height ? "landscape" : "portrait",
+        orientation:
+          canvas.width >= canvas.height
+            ? "landscape"
+            : "portrait",
         unit: "pt",
         format: "a4",
         compress: true,
@@ -405,7 +418,7 @@ function App() {
   }
 
   return (
-    <div className="w-screen h-screen bg-[#0B0B0D] flex flex-col">
+    <div className="w-screen h-screen bg-[#0B0B0D] flex flex-col overflow-hidden">
       <Header
         onUndo={handleUndo}
         onRedo={handleRedo}
@@ -418,20 +431,20 @@ function App() {
         saveStatus={saveStatus}
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden relative">
         <LeftToolbar
           excalidrawAPI={excalidrawAPI}
           activeTool={activeTool}
           setActiveTool={setActiveTool}
         />
 
-        <main className="flex-1 flex flex-col min-w-0">
+        <main className="flex-1 flex flex-col min-w-0 min-h-0">
           <AIPrompt
             onGenerate={handleAIGenerate}
             isGenerating={isGenerating}
           />
 
-          <div className="flex-1 mx-5 mb-5 mt-2 rounded-xl border border-[#2a2a2f] bg-white overflow-hidden text-black">
+          <div className="flex-1 min-h-0 mx-5 mb-5 mt-2 rounded-xl border border-[#2a2a2f] bg-white overflow-hidden text-black mobile-canvas">
             <Whiteboard
               setExcalidrawAPI={setExcalidrawAPI}
               setSelectedElement={setSelectedElement}
@@ -445,10 +458,15 @@ function App() {
         <RightPanel
           selectedElement={selectedElement}
           updateSelectedElement={updateSelectedElement}
+          onOpenSettings={() =>
+            setShowMobileProperties((prev) => !prev)
+          }
+          mobileOpen={showMobileProperties}
+          onCloseMobile={() => setShowMobileProperties(false)}
         />
       </div>
 
-      <footer className="h-10 border-t border-[#2a2a2f] bg-[#111113] flex items-center justify-center text-xs text-gray-500">
+      <footer className="h-10 border-t border-[#2a2a2f] bg-[#111113] flex items-center justify-center text-xs text-gray-500 mobile-footer">
         <div className="flex items-center gap-6">
           <span>Whiteboard AI Agent</span>
           <span className="w-1 h-1 rounded-full bg-[#7F1D2D]" />

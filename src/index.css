@@ -23,6 +23,7 @@ body {
 .toolbar-button {
   width: 36px;
   height: 36px;
+  min-width: 36px;
   border-radius: 8px;
 
   display: flex;
@@ -32,9 +33,179 @@ body {
   color: #9ca3af;
 
   transition: all 0.2s ease;
+
+  touch-action: manipulation;
 }
 
 .toolbar-button:hover {
   color: white;
   background: #7f1d2d;
+}
+
+/* --------------------------------------------------
+   Tablet
+-------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .mobile-canvas {
+    margin-left: 12px;
+    margin-right: 12px;
+    margin-bottom: 12px;
+  }
+}
+
+/* --------------------------------------------------
+   Mobile
+-------------------------------------------------- */
+
+@media (max-width: 640px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+  }
+
+  /* Header */
+
+  header {
+    height: 56px !important;
+    min-height: 56px;
+    padding-left: 10px !important;
+    padding-right: 8px !important;
+  }
+
+  header .toolbar-button {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+  }
+
+  /* Logo */
+
+  header > div:first-child {
+    gap: 8px !important;
+    min-width: 0;
+  }
+
+  header > div:first-child > div:first-child {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px;
+    border-radius: 9px;
+  }
+
+  header > div:first-child svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  header h1 {
+    font-size: 14px !important;
+  }
+
+  header p {
+    display: none;
+  }
+
+  /* Header action area */
+
+  header > div:last-child {
+    gap: 1px !important;
+    min-width: 0;
+  }
+
+  header > div:last-child > div:first-of-type {
+    display: none;
+  }
+
+  header .text-xs[role="status"] {
+    display: none;
+  }
+
+  /* Keep the important actions visible */
+  header .toolbar-button {
+    flex-shrink: 0;
+  }
+
+  /* Main workspace */
+
+  .mobile-canvas {
+    margin: 6px 6px 6px 6px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Footer */
+
+  .mobile-footer {
+    height: 28px !important;
+    min-height: 28px;
+    padding: 0 8px;
+    overflow: hidden;
+  }
+
+  .mobile-footer > div {
+    gap: 8px !important;
+    white-space: nowrap;
+    font-size: 9px;
+  }
+
+  .mobile-footer > div span:nth-of-type(2),
+  .mobile-footer > div span:nth-of-type(3) {
+    display: none;
+  }
+
+  /* Better touch behavior */
+
+  button,
+  input {
+    touch-action: manipulation;
+  }
+}
+
+/* --------------------------------------------------
+   Small phones
+-------------------------------------------------- */
+
+@media (max-width: 390px) {
+  header {
+    padding-left: 7px !important;
+    padding-right: 5px !important;
+  }
+
+  header > div:first-child > div:first-child {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px;
+  }
+
+  header h1 {
+    font-size: 13px !important;
+  }
+
+  header .toolbar-button {
+    width: 31px;
+    height: 31px;
+    min-width: 31px;
+  }
+
+  header .toolbar-button svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .mobile-canvas {
+    margin: 4px !important;
+  }
+
+  .mobile-footer {
+    height: 24px !important;
+    min-height: 24px;
+  }
+
+  .mobile-footer > div {
+    font-size: 8px;
+  }
 }
