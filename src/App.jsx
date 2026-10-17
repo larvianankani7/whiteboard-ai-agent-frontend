@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  exportToCanvas,
-} from "@excalidraw/excalidraw";
+import { exportToCanvas } from "@excalidraw/excalidraw";
 import { jsPDF } from "jspdf";
 
 import Header from "./components/Header";
@@ -18,12 +16,10 @@ function App() {
   const [activeTool, setActiveTool] = useState("selection");
   const [selectedElement, setSelectedElement] = useState(null);
   const [canvasTheme, setCanvasTheme] = useState("dark");
-  const [shareMessage, setShareMessage] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [saveStatus, setSaveStatus] = useState("Loading board...");
   const [initialData, setInitialData] = useState(null);
   const [boardReady, setBoardReady] = useState(false);
-  const [showMobileProperties, setShowMobileProperties] = useState(false);
 
   const historyRef = useRef([[]]);
   const historyIndexRef = useRef(0);
@@ -51,9 +47,7 @@ function App() {
             }
           : {
               elements: [],
-              appState: {
-                viewBackgroundColor: "#ffffff",
-              },
+              appState: { viewBackgroundColor: "#ffffff" },
               files: {},
             };
 
@@ -109,7 +103,6 @@ function App() {
     (scene) => {
       currentSceneRef.current = scene;
       setSaveStatus("Saving...");
-
       clearTimeout(saveTimerRef.current);
 
       saveTimerRef.current = setTimeout(async () => {
@@ -127,16 +120,14 @@ function App() {
 
   useEffect(() => {
     const flushSave = () => {
-      if (document.visibilityState === "hidden") {
-        clearTimeout(saveTimerRef.current);
+      if (document.visibilityState !== "hidden") return;
 
-        const scene = currentSceneRef.current;
+      clearTimeout(saveTimerRef.current);
 
-        if (scene) {
-          persistScene(scene).catch((error) => {
-            console.error("Final autosave failed:", error);
-          });
-        }
+      if (currentSceneRef.current) {
+        persistScene(currentSceneRef.current).catch((error) => {
+          console.error("Final autosave failed:", error);
+        });
       }
     };
 
@@ -197,9 +188,7 @@ function App() {
         `${import.meta.env.VITE_API_URL}/api/generate`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt }),
         }
       );
@@ -210,28 +199,14 @@ function App() {
         throw new Error(result.error || "AI generation failed");
       }
 
-      const elements = aiToExcalidraw(result.data);
-
-      excalidrawAPI.updateScene({ elements });
+      excalidrawAPI.updateScene({
+        elements: aiToExcalidraw(result.data),
+      });
     } catch (error) {
       console.error("AI generation error:", error);
-      window.alert(
-        "Could not generate the diagram. Please try again."
-      );
+      window.alert("Could not generate the diagram. Please try again.");
     } finally {
       setIsGenerating(false);
-    }
-  };
-
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setShareMessage("Link copied!");
-      setTimeout(() => setShareMessage(""), 2000);
-    } catch (error) {
-      console.error("Failed to copy link:", error);
-      setShareMessage("Could not copy link");
-      setTimeout(() => setShareMessage(""), 2000);
     }
   };
 
@@ -241,38 +216,14 @@ function App() {
     );
   };
 
-  const updateSelectedElement = (updates) => {
-    if (!excalidrawAPI || !selectedElement) return;
-
-    const elements = excalidrawAPI.getSceneElements();
-
-    const updatedElements = elements.map((element) =>
-      element.id === selectedElement.id
-        ? { ...element, ...updates }
-        : element
-    );
-
-    excalidrawAPI.updateScene({
-      elements: updatedElements,
-    });
-
-    setSelectedElement((prev) =>
-      prev ? { ...prev, ...updates } : prev
-    );
-  };
-
   const handleUndo = () => {
     if (!excalidrawAPI || historyIndexRef.current <= 0) return;
 
     historyIndexRef.current -= 1;
 
-    const previousElements =
-      historyRef.current[historyIndexRef.current];
-
     isHistoryActionRef.current = true;
-
     excalidrawAPI.updateScene({
-      elements: previousElements,
+      elements: historyRef.current[historyIndexRef.current],
     });
 
     setTimeout(() => {
@@ -290,19 +241,71 @@ function App() {
 
     historyIndexRef.current += 1;
 
-    const nextElements =
-      historyRef.current[historyIndexRef.current];
-
     isHistoryActionRef.current = true;
-
     excalidrawAPI.updateScene({
-      elements: nextElements,
+      elements: historyRef.current[historyIndexRef.current],
     });
 
     setTimeout(() => {
       isHistoryActionRef.current = false;
     }, 0);
   };
+
+  const handleClearAll = () => {
+    if (!excalidrawAPI) return;
+
+    const elements = excalidrawAPI
+      .getSceneElements()
+      .filter((element) => !element.isDeleted);
+
+    if (elements.length === 0) return;
+
+    const confirmed = window.confirm(
+      "Clear the entire whiteboard? This will remove all drawings and text."
+    );
+
+    if (!confirmed) return;
+
+    isHistoryActionRef.current = true;
+
+    excalidrawAPI.updateScene({
+      elements: [],
+      appState: {
+        selectedElementIds: {},
+      },
+    });
+
+    setSelectedElement(null);
+    historyRef.current = [[]];
+    historyIndexRef.current = 0;
+
+    setTimeout(() => {
+      isHistoryActionRef.current = false;
+    }, 0);
+  };
+
+ 
+const updateSelectedElement = (updates) => {
+  if (!excalidrawAPI || !selectedElement) return;
+
+  const elements = excalidrawAPI.getSceneElements();
+
+  const updatedElements = elements.map((element) =>
+    element.id === selectedElement.id
+      ? { ...element, ...updates }
+      : element
+  );
+
+  // Pass the updated array, not the original elements.
+  excalidrawAPI.updateScene({
+    elements: updatedElements,
+  });
+
+  setSelectedElement((prev) =>
+    prev ? { ...prev, ...updates } : prev
+  );
+};
+
 
   const getExportCanvas = async () => {
     if (!excalidrawAPI) {
@@ -314,9 +317,7 @@ function App() {
       .filter((element) => !element.isDeleted);
 
     if (elements.length === 0) {
-      window.alert(
-        "Your whiteboard is empty. Draw something first."
-      );
+      window.alert("Your whiteboard is empty. Draw something first.");
       return null;
     }
 
@@ -373,9 +374,7 @@ function App() {
 
       const pdf = new jsPDF({
         orientation:
-          canvas.width >= canvas.height
-            ? "landscape"
-            : "portrait",
+          canvas.width >= canvas.height ? "landscape" : "portrait",
         unit: "pt",
         format: "a4",
         compress: true,
@@ -411,40 +410,47 @@ function App() {
 
   if (!boardReady) {
     return (
-      <div className="w-screen h-screen bg-[#0B0B0D] flex items-center justify-center text-gray-300">
+      <div className="w-full h-full min-h-0 bg-[#0B0B0D] flex items-center justify-center text-gray-300">
         Restoring your whiteboard...
       </div>
     );
   }
 
   return (
-    <div className="w-screen h-screen bg-[#0B0B0D] flex flex-col overflow-hidden">
+    <div className="app-shell w-full h-full bg-[#0B0B0D] flex flex-col overflow-hidden">
       <Header
         onUndo={handleUndo}
         onRedo={handleRedo}
         onSave={handleSavePDF}
         onDownloadPNG={handleDownloadPNG}
-        onShare={handleShare}
+        onShare={async () => {
+          try {
+            await navigator.clipboard.writeText(window.location.href);
+            window.alert("Link copied!");
+          } catch {
+            window.alert("Could not copy link.");
+          }
+        }}
         onToggleTheme={toggleCanvasTheme}
         canvasTheme={canvasTheme}
-        shareMessage={shareMessage}
         saveStatus={saveStatus}
       />
 
-      <div className="flex flex-1 min-h-0 overflow-hidden relative">
+      <div className="workspace flex flex-1 min-h-0 min-w-0 overflow-hidden">
         <LeftToolbar
           excalidrawAPI={excalidrawAPI}
           activeTool={activeTool}
           setActiveTool={setActiveTool}
+          onClearAll={handleClearAll}
         />
 
-        <main className="flex-1 flex flex-col min-w-0 min-h-0">
+        <main className="main-workspace flex-1 flex flex-col min-w-0 min-h-0">
           <AIPrompt
             onGenerate={handleAIGenerate}
             isGenerating={isGenerating}
           />
 
-          <div className="flex-1 min-h-0 mx-5 mb-5 mt-2 rounded-xl border border-[#2a2a2f] bg-white overflow-hidden text-black mobile-canvas">
+          <div className="canvas-frame flex-1 min-h-0 min-w-0 mx-5 mb-5 mt-2 rounded-xl border border-[#2a2a2f] bg-white overflow-hidden text-black">
             <Whiteboard
               setExcalidrawAPI={setExcalidrawAPI}
               setSelectedElement={setSelectedElement}
@@ -455,18 +461,15 @@ function App() {
           </div>
         </main>
 
-        <RightPanel
-          selectedElement={selectedElement}
-          updateSelectedElement={updateSelectedElement}
-          onOpenSettings={() =>
-            setShowMobileProperties((prev) => !prev)
-          }
-          mobileOpen={showMobileProperties}
-          onCloseMobile={() => setShowMobileProperties(false)}
-        />
+        <div className="desktop-properties">
+          <RightPanel
+            selectedElement={selectedElement}
+            updateSelectedElement={updateSelectedElement}
+          />
+        </div>
       </div>
 
-      <footer className="h-10 border-t border-[#2a2a2f] bg-[#111113] flex items-center justify-center text-xs text-gray-500 mobile-footer">
+      <footer className="app-footer h-10 border-t border-[#2a2a2f] bg-[#111113] flex items-center justify-center text-xs text-gray-500">
         <div className="flex items-center gap-6">
           <span>Whiteboard AI Agent</span>
           <span className="w-1 h-1 rounded-full bg-[#7F1D2D]" />

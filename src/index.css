@@ -11,6 +11,7 @@ body,
 #root {
   width: 100%;
   height: 100%;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -18,6 +19,12 @@ body {
   background: #0b0b0d;
   color: white;
   font-family: Arial, Helvetica, sans-serif;
+  overscroll-behavior: none;
+}
+
+button,
+input {
+  touch-action: manipulation;
 }
 
 .toolbar-button {
@@ -25,16 +32,11 @@ body {
   height: 36px;
   min-width: 36px;
   border-radius: 8px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   color: #9ca3af;
-
-  transition: all 0.2s ease;
-
-  touch-action: manipulation;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .toolbar-button:hover {
@@ -42,170 +44,334 @@ body {
   background: #7f1d2d;
 }
 
-/* --------------------------------------------------
-   Tablet
--------------------------------------------------- */
+.app-shell {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.workspace {
+  flex-direction: row;
+}
+
+.left-toolbar {
+  width: 64px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.tool-button {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s ease, color 0.2s ease;
+  touch-action: manipulation;
+}
+
+.toolbar-separator {
+  width: 28px;
+  height: 1px;
+  background: #2a2a2f;
+  margin: 6px 0;
+  flex-shrink: 0;
+}
+
+.main-workspace {
+  overflow: hidden;
+}
+
+.canvas-frame {
+  position: relative;
+}
+
+.desktop-properties {
+  display: block;
+  flex-shrink: 0;
+}
+
+.mobile-pdf-label,
+.mobile-mode-label {
+  display: none;
+}
+
+.app-footer {
+  flex-shrink: 0;
+}
 
 @media (max-width: 900px) {
-  .mobile-canvas {
+  .canvas-frame {
     margin-left: 12px;
     margin-right: 12px;
     margin-bottom: 12px;
   }
 }
 
-/* --------------------------------------------------
-   Mobile
--------------------------------------------------- */
-
+/* Phones and narrow portrait screens */
 @media (max-width: 640px) {
   html,
   body,
   #root {
     width: 100%;
     height: 100%;
-    min-height: 100%;
+    height: 100dvh;
+    min-height: 0;
     overflow: hidden;
   }
 
-  /* Header */
-
-  header {
-    height: 56px !important;
-    min-height: 56px;
-    padding-left: 10px !important;
-    padding-right: 8px !important;
+  .app-shell {
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
   }
 
-  header .toolbar-button {
-    width: 34px;
-    height: 34px;
-    min-width: 34px;
+  /* Minimal navbar */
+  .app-header {
+    height: 52px !important;
+    min-height: 52px;
+    padding: 0 10px !important;
+    gap: 6px;
   }
 
-  /* Logo */
-
-  header > div:first-child {
-    gap: 8px !important;
-    min-width: 0;
+  .app-logo {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
   }
 
-  header > div:first-child > div:first-child {
-    width: 36px !important;
+  .app-logo svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .app-header h1 {
+    font-size: 13px !important;
+    line-height: 1.2;
+  }
+
+  .desktop-subtitle {
+    display: none;
+  }
+
+  .header-actions {
+    gap: 7px !important;
+  }
+
+  .header-action {
+    width: auto !important;
+    min-width: 36px !important;
     height: 36px !important;
-    min-width: 36px;
-    border-radius: 9px;
-  }
-
-  header > div:first-child svg {
-    width: 19px;
-    height: 19px;
-  }
-
-  header h1 {
-    font-size: 14px !important;
-  }
-
-  header p {
-    display: none;
-  }
-
-  /* Header action area */
-
-  header > div:last-child {
-    gap: 1px !important;
-    min-width: 0;
-  }
-
-  header > div:last-child > div:first-of-type {
-    display: none;
-  }
-
-  header .text-xs[role="status"] {
-    display: none;
-  }
-
-  /* Keep the important actions visible */
-  header .toolbar-button {
-    flex-shrink: 0;
-  }
-
-  /* Main workspace */
-
-  .mobile-canvas {
-    margin: 6px 6px 6px 6px !important;
-    border-radius: 10px !important;
-  }
-
-  /* Footer */
-
-  .mobile-footer {
-    height: 28px !important;
-    min-height: 28px;
     padding: 0 8px;
+    gap: 5px;
+    border: 1px solid #34343a;
+    border-radius: 9px;
+    color: #f3f4f6;
+  }
+
+  .mobile-pdf-label,
+  .mobile-mode-label {
+    display: inline;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  /* Toolbar sits horizontally above the canvas */
+  .workspace {
+    flex: 1 1 0;
+    min-height: 0;
+    min-width: 0;
+    flex-direction: column;
     overflow: hidden;
   }
 
-  .mobile-footer > div {
-    gap: 8px !important;
-    white-space: nowrap;
-    font-size: 9px;
+  .left-toolbar {
+    order: 0;
+    width: 100%;
+    height: 48px;
+    min-height: 48px;
+    padding: 5px 8px;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 7px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-right: 0;
+    border-bottom: 1px solid #2a2a2f;
+    scrollbar-width: none;
   }
 
-  .mobile-footer > div span:nth-of-type(2),
-  .mobile-footer > div span:nth-of-type(3) {
+  .left-toolbar::-webkit-scrollbar {
     display: none;
   }
 
-  /* Better touch behavior */
+  .tool-button {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: 8px;
+  }
 
-  button,
-  input {
-    touch-action: manipulation;
+  .tool-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .toolbar-separator {
+    width: 1px;
+    height: 25px;
+    min-width: 1px;
+    margin: 0 2px;
+  }
+
+  .main-workspace {
+    order: 1;
+    flex: 1 1 0;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* Compact AI prompt */
+  .ai-prompt-container {
+    padding: 8px 8px 4px !important;
+  }
+
+  .ai-prompt-container > div > div:first-child {
+    gap: 7px;
+    margin-bottom: 6px;
+  }
+
+  .ai-prompt-container > div > div:first-child span {
+    font-size: 11px;
+  }
+
+  .ai-prompt-box {
+    width: 100%;
+    gap: 7px !important;
+    padding: 7px !important;
+    border-radius: 11px !important;
+  }
+
+  .prompt-sparkle {
+    display: none;
+  }
+
+  .ai-prompt-box input {
+    width: 0;
+    min-width: 0;
+    font-size: 12px !important;
+  }
+
+  .ai-prompt-box input::placeholder {
+    font-size: 11px;
+  }
+
+  .generate-button {
+    min-height: 35px;
+    padding: 0 10px !important;
+    gap: 5px;
+    border-radius: 8px !important;
+    font-size: 11px !important;
+  }
+
+  .generate-button svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .prompt-hint {
+    display: none;
+  }
+
+  /* Canvas receives all remaining space */
+  .canvas-frame {
+    flex: 1 1 0;
+    min-height: 0;
+    min-width: 0;
+    margin: 4px !important;
+    border-radius: 9px !important;
+  }
+
+  /* No properties panel or footer on mobile */
+  .desktop-properties {
+    display: none !important;
+  }
+
+  .app-footer {
+    display: none !important;
   }
 }
 
-/* --------------------------------------------------
-   Small phones
--------------------------------------------------- */
-
-@media (max-width: 390px) {
-  header {
-    padding-left: 7px !important;
-    padding-right: 5px !important;
+/* Extra-small phones */
+@media (max-width: 360px) {
+  .app-header {
+    padding: 0 6px !important;
   }
 
-  header > div:first-child > div:first-child {
-    width: 32px !important;
-    height: 32px !important;
-    min-width: 32px;
+  .app-header h1 {
+    font-size: 12px !important;
   }
 
-  header h1 {
-    font-size: 13px !important;
+  .app-logo {
+    width: 29px !important;
+    height: 29px !important;
+    min-width: 29px;
   }
 
-  header .toolbar-button {
-    width: 31px;
-    height: 31px;
-    min-width: 31px;
+  .header-actions {
+    gap: 4px !important;
   }
 
-  header .toolbar-button svg {
-    width: 15px;
-    height: 15px;
+  .header-action {
+    min-width: 32px !important;
+    height: 33px !important;
+    padding: 0 6px;
   }
 
-  .mobile-canvas {
+  .mobile-pdf-label,
+  .mobile-mode-label {
+    font-size: 10px;
+  }
+
+  .left-toolbar {
+    gap: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .tool-button {
+    width: 33px;
+    height: 33px;
+    min-width: 33px;
+    min-height: 33px;
+  }
+
+  .generate-button {
+    padding: 0 8px !important;
+  }
+}
+@media (max-width: 640px) {
+  .ai-prompt-container {
+    display: none !important;
+  }
+
+  .main-workspace {
+    flex: 1 1 0;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  .canvas-frame {
+    flex: 1 1 0;
+    min-height: 0;
     margin: 4px !important;
-  }
-
-  .mobile-footer {
-    height: 24px !important;
-    min-height: 24px;
-  }
-
-  .mobile-footer > div {
-    font-size: 8px;
   }
 }
